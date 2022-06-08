@@ -1,25 +1,74 @@
-import logo from './logo.svg';
-import './App.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState } from "react";
+import { Route, Switch } from "react-router-dom";
+import ContactForm from "./Components/ContactForm/ContactForm";
+import ContactList from "./Components/ContactList/ContactList";
+import ContactDetail from "./Components/ContactDetail/ContactDetail";
+const App = () => {
+  const [categoryName, setCategoryName] = useState([]);
 
-function App() {
+  const addHandler = (contactName) => {
+    console.log(contactName);
+    setCategoryName([
+      ...categoryName,
+      { ...contactName, id: categoryName.length + 1 },
+    ]);
+  };
+  const DeleteHandler = (id) => {
+    console.log("clicked", id);
+    const deleteItem = categoryName.filter((c) => c.id !== id);
+    setCategoryName(deleteItem);
+  };
+  useEffect(() => {
+    const saveLocal = JSON.parse(localStorage.getItem("items"));
+    if (saveLocal) setCategoryName(saveLocal);
+  }, []);
+
+  useEffect(() => {
+    if (categoryName?.length) {
+      localStorage.setItem("items", JSON.stringify(categoryName));
+    }
+  }, [categoryName]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <section>
+      <header>
+        
+        {/* <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/newcontact">NewContact</Link>
+            </li>
+          </ul>
+        </nav> */}
       </header>
-    </div>
+      <Switch>
+      <Route
+          path="/user/:id"
+         component={ContactDetail} />
+          
+      
+        <Route
+          path="/add"
+          exact
+          render={(props) => <ContactForm addHandler={addHandler} {...props} />}
+        />
+        <Route
+          path="/"
+          render={() => (
+            <ContactList categoryName={categoryName} onDelete={DeleteHandler} />
+          )}
+        />
+      </Switch>
+      {/* <ContactForm addHandler={addHandler} /> */}
+      {/* <ContactList categoryName={categoryName} onDelete={DeleteHandler} /> */}
+      <ToastContainer />
+    </section>
   );
-}
+};
 
 export default App;
